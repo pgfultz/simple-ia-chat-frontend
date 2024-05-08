@@ -41,6 +41,43 @@ export const BoxMessages = styled.div`
     margin: 15px 0;
     overflow-x: hidden;
     overflow-y: auto;
+
+    /* Para estilizar o scroll vertical */
+    &::-webkit-scrollbar {
+    width: 10px; /* Largura do scroll */
+    }
+
+    &::-webkit-scrollbar-track {
+    background: #555; /* Cor do fundo do track */
+    }
+
+    &::-webkit-scrollbar-thumb {
+    background: #888; /* Cor do thumb (a parte que pode ser arrastada) */
+    border-radius: 4px; /* Raio de borda do thumb */
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+    background: #999; /* Cor do thumb quando passa o mouse por cima */
+    }
+
+    /* Para estilizar o scroll horizontal */
+    &::-webkit-scrollbar-x {
+    height: 8px; /* Altura do scroll */
+    }
+
+    &::-webkit-scrollbar-x-track {
+    background: #f1f1f1; /* Cor do fundo do track */
+    }
+
+    &::-webkit-scrollbar-x-thumb {
+    background: #888; /* Cor do thumb (a parte que pode ser arrastada) */
+    border-radius: 4px; /* Raio de borda do thumb */
+    }
+
+    &::-webkit-scrollbar-x-thumb:hover {
+    background: #555; /* Cor do thumb quando passa o mouse por cima */
+    }
+
 `;
 
 export const MessageUser = styled.div`
@@ -52,6 +89,7 @@ export const MessageUser = styled.div`
     margin: 5px 0;
     border-top-left-radius: 23px;
     border-bottom-left-radius: 23px;
+    border-bottom-right-radius: 23px;
 `;
 
 export const MessageAssistant = styled.div`
@@ -63,6 +101,7 @@ export const MessageAssistant = styled.div`
     margin: 5px 0;
     border-top-right-radius: 23px;
     border-bottom-right-radius: 23px;
+    border-bottom-left-radius: 23px;
 `;
 
 export const InputArea = styled.div`

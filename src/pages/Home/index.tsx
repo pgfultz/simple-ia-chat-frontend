@@ -27,9 +27,10 @@ type MessageItemProps = {
 
 const Home: React.FC = () => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const boxMessagesRef = useRef<HTMLDivElement>(null);
 
     const [connErr, setConnErr] = useState<boolean>(false);
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState<any>([]);
     const [inputMessage, setInputMessage] = useState<string>('');
 
     useEffect(() => {
@@ -53,32 +54,45 @@ const Home: React.FC = () => {
         }, 600);
     }, [messages]);
 
+    useEffect(() => {
+        if (boxMessagesRef.current) {
+          boxMessagesRef.current.scrollTo(0, boxMessagesRef.current.scrollHeight);
+        }
+      }, [boxMessagesRef.current]);
+
     async function sendMessage() {
         try{
+            setInputMessage('');
+
             const format: Object = {
                 role: 'user',
                 content: inputMessage
             };
-            
-            let newMessagesArr: Array<Object> = messages;
-            newMessagesArr.push(format);
-            //console.log(newMessagesArr);
 
-            const newArray: any = newMessagesArr.map((obj: any) => {
-                // Cria uma cópia do objeto excluindo os campos _id e sentAt
-                const newObj = { ...obj };
-                delete newObj._id;
-                delete newObj.sentAt;
-                return newObj;
-            });
+            setMessages([...messages, format, {role: 'assistant', content: 'Typing...'}]);
+            scrollToBottom();
             
-            //console.log(newArray);
-    
-            const response = await api.put('/chat/663ac8f1d4cc42fda4399001', newArray);
-            //console.log(response);
+            setTimeout(async () => {
+                let newMessagesArr: Array<Object> = messages;
+                newMessagesArr.push(format);
+                //console.log(newMessagesArr);
 
-            setInputMessage('');
-            setMessages(response.data.messages);
+                const newArray: any = newMessagesArr.map((obj: any) => {
+                    // Cria uma cópia do objeto excluindo os campos _id e sentAt
+                    const newObj = { ...obj };
+                    delete newObj._id;
+                    delete newObj.sentAt;
+                    return newObj;
+                });         
+                //console.log(newArray);
+        
+                const response = await api.put('/chat/663ac8f1d4cc42fda4399001', newArray);
+                //console.log(response);
+
+                setMessages(response.data.messages);
+            }, 600);
+
+            
             
         }catch(err){
             console.log(err);
@@ -90,15 +104,22 @@ const Home: React.FC = () => {
         if (messagesEndRef.current) {
           messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
-      };
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // Impede a quebra de linha ao pressionar Enter
+            sendMessage();
+        }
+    };
 
     return(
         <Container>
             <Logo src={logoImg} />
-            <BoxMessages>
+            <BoxMessages ref={boxMessagesRef}>
                 {connErr && <ErrMsg>An unexpected error occurred</ErrMsg>}
                 {messages.length === 0 && <EmptyMsg>Chat empty</EmptyMsg>}
-                {messages.length > 0 && messages.map((item: MessageItemProps, ind) => (
+                {messages.length > 0 && messages.map((item: MessageItemProps, ind: number) => (
                     <div key={ind}>
                     {item.role === 'user' && (
                         <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-end'}}>
@@ -121,6 +142,7 @@ const Home: React.FC = () => {
                     placeholder="Message ChatClone"
                     value={inputMessage}
                     onChange={e => setInputMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
                 />
                 <InputBtn onClick={sendMessage}>
                     <BiSend size={23} />
